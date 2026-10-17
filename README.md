@@ -13,7 +13,7 @@
 </p>
 
 [Quick Start](#-quick-start) •
-[🚀 Live Demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/) •
+[🚀 Live Demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/web/) •
 [Features](#-key-features) •
 [Mathematical Model](#-mathematical-model) •
 [Architecture](#-system-architecture) •
@@ -119,7 +119,7 @@ python concentration_tracker/concen_tracker.py
 
 A zero-install client-side browser dashboard built with modern glassmorphism aesthetics, ambient background glow, and Chart.js analytics:
 
-[Open the live demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/). Allow camera access in your browser when prompted.
+[Open the live demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/web/). Allow camera access in your browser when prompted.
 
 ```bash
 python web/run_web.py
