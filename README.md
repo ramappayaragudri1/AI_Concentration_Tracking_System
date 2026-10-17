@@ -1,5 +1,3 @@
-<div align="center">
-
 # 🎯 AI Concentration Tracking System
 ### *Real-Time Attentiveness, Gaze & Fatigue Analytics Powered by Computer Vision*
 
@@ -15,6 +13,7 @@
 </p>
 
 [Quick Start](#-quick-start) •
+[🚀 Live Demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/) •
 [Features](#-key-features) •
 [Mathematical Model](#-mathematical-model) •
 [Architecture](#-system-architecture) •
@@ -22,8 +21,6 @@
 [GitHub Setup](#-pushing-to-github)
 
 ---
-
-</div>
 
 ## 📌 Table of Contents
 - [🌟 Key Features](#-key-features)
@@ -121,6 +118,8 @@ python concentration_tracker/concen_tracker.py
 ## 🌐 Web Application Dashboard (HTML5 / CSS3 / JS)
 
 A zero-install client-side browser dashboard built with modern glassmorphism aesthetics, ambient background glow, and Chart.js analytics:
+
+[Open the live demo](https://ramappayaragudri1.github.io/AI_Concentration_Tracking_System/). Allow camera access in your browser when prompted.
 
 ```bash
 python web/run_web.py
