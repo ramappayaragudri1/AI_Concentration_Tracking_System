@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Concentration Tracking System - Real-time student & productivity attentiveness evaluation using MediaPipe FaceMesh computer vision.">
+  <title>AI Concentration Tracker | Real-Time Attentiveness Monitor</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for Real-Time Concentration Line Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- MediaPipe FaceMesh & Camera Utils via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="logo-badge">
+          <span>🎯</span>
+        </div>
+        <div>
+          <h1>AI Concentration Tracking System</h1>
+          <p class="tagline">Real-Time Attentiveness & Fatigue Analytics with Computer Vision</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="status-chip" class="status-chip">
+          <span class="pulse-dot"></span>
+          <span id="status-text">Ready to Start</span>
+        </div>
+        <button id="btn-toggle-cam" class="btn btn-primary">
+          <span id="cam-btn-icon">▶</span>
+          <span id="cam-btn-text">Start Tracking</span>
+        </button>
+        <button id="btn-export-log" class="btn btn-secondary" title="Export Session Metrics as CSV">
+          <span>📥 Export Report</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="main-dashboard">
+      <!-- Left Column: Video & Immediate Metrics -->
+      <section class="glass-panel viewport-card">
+        <!-- Live Video Viewport -->
+        <div class="camera-container" id="camera-container">
+          <video id="webcam-video" playsinline></video>
+          <canvas id="overlay-canvas"></canvas>
+
+          <!-- Pre-Start Placeholder -->
+          <div id="camera-placeholder" class="camera-placeholder">
+            <span class="icon">📷</span>
+            <h3>Camera is Currently Inactive</h3>
+            <p>Click <strong>Start Tracking</strong> above to initialize your camera and begin real-time face mesh analysis.</p>
+          </div>
+
+          <!-- HUD Overlays -->
+          <div class="hud-bar">
+            <div id="hud-fps" class="hud-badge fps">FPS: 0.0</div>
+            <div id="hud-state" class="hud-badge state">OFFLINE</div>
+          </div>
+        </div>
+
+        <!-- Concentration Progress Meter -->
+        <div class="meter-card">
+          <div class="meter-header">
+            <span class="meter-title">Real-Time Attentiveness Level</span>
+            <span id="meter-value" class="meter-value">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="meter-fill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <!-- Viewport Controls & Toggles -->
+        <div class="viewport-controls">
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="chk-draw-mesh" checked>
+            <span>Show Face Mesh Contours</span>
+          </label>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="chk-audio-alert" checked>
+            <span>Audio Distraction Warning</span>
+          </label>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="chk-mirror-mode" checked>
+            <span>Mirror Video Feed</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Right Column: Analytics & Diagnostic Cards -->
+      <aside class="analytics-column">
+        <!-- Live Metrics Grid -->
+        <div class="metrics-grid">
+          <!-- Gaze Status Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>👁️</span> Gaze Direction
+            </div>
+            <div id="metric-gaze" class="metric-val">--</div>
+            <span id="metric-gaze-pill" class="metric-pill pill-good">Active</span>
+          </div>
+
+          <!-- Head Pose Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>👤</span> Head Pose
+            </div>
+            <div id="metric-head" class="metric-val">--</div>
+            <span id="metric-head-pill" class="metric-pill pill-good">Facing Screen</span>
+          </div>
+
+          <!-- Eye Aspect Ratio (EAR) Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>👀</span> Blink / EAR
+            </div>
+            <div id="metric-ear" class="metric-val">0.00</div>
+            <span id="metric-blink-pill" class="metric-pill pill-good">Eyes Open</span>
+          </div>
+
+          <!-- Distraction Counter Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>⚠️</span> Distraction Events
+            </div>
+            <div id="metric-distractions" class="metric-val">0</div>
+            <span id="metric-distract-pill" class="metric-pill pill-good">Focused</span>
+          </div>
+
+          <!-- Total Blinks Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>🔄</span> Total Blinks
+            </div>
+            <div id="metric-total-blinks" class="metric-val">0</div>
+            <span class="metric-pill pill-good">Normal</span>
+          </div>
+
+          <!-- Session Duration Card -->
+          <div class="metric-box">
+            <div class="metric-label">
+              <span>⏱️</span> Active Session
+            </div>
+            <div id="metric-timer" class="metric-val">00:00</div>
+            <span id="metric-avg-score" class="metric-pill pill-good">Avg: --%</span>
+          </div>
+        </div>
+
+        <!-- Real-Time Timeline Graph -->
+        <div class="glass-panel chart-panel">
+          <div class="panel-header">
+            <h3>Concentration Timeline</h3>
+            <span class="tagline">Last 30 seconds</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="concentration-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Formula Card -->
+        <div class="glass-panel formula-card">
+          <h4>Formula & Weighting</h4>
+          <div class="formula-text">
+            Score = (0.4 × Gaze) + (0.4 × Head Pose) + (0.2 × Blink State)
+          </div>
+          <p class="tagline">Calculates smoothed 10-frame attentiveness percentage matching the Python tracking model.</p>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>AI Concentration Tracking System &bull; Powered by MediaPipe FaceMesh & HTML5 Web Audio &bull; Real-Time AI Productivity</p>
+    </footer>
+  </div>
+
+  <!-- Distraction Audio Chime & Warning Toast -->
+  <div id="toast-alert" class="toast-alert">
+    <span>⚠️</span>
+    <span id="toast-message">Distraction Detected! Please refocus on your screen.</span>
+  </div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
